@@ -9,7 +9,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: '20.0.0'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci --verbose
 
       - name: Upload npm debug log
@@ -27,7 +27,7 @@ jobs:
           name: npm-debug-log
           path: /home/runner/.npm/_logs/
 
-      - name: Run bot
+      - name: Run Bluesky to Discord Bot
         env:
           BSKY_HANDLE: devilmaycry5.bsky.social
           BSKY_APP_PASSWORD: ${{ secrets.BSKY_APP_PASSWORD }}
