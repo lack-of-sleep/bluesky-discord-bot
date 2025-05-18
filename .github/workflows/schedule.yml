@@ -22,7 +22,7 @@ jobs:
 
       - name: Run bot
         env:
-          BSKY_HANDLE: ‪devilmaycry5.bsky.social‬
+          BSKY_HANDLE: devilmaycry5.bsky.social
           BSKY_APP_PASSWORD: ${{ secrets.BSKY_APP_PASSWORD }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: node index.js
