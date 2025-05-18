@@ -18,7 +18,7 @@ async function main() {
   const link = `https://bsky.app/profile/${username}/post/${postId}`;
 
   await axios.post(discordWebhookUrl, {
-    content: `{link}`,
+    content: `${link}`, 
   });
 }
 
