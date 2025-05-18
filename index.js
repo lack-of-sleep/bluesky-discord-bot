@@ -1,3 +1,13 @@
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+console.log('Starting the bot...');
+
 const { BskyAgent } = require('@atproto/api');
 const axios = require('axios');
 
