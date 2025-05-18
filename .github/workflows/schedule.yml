@@ -12,10 +12,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '20.0.0'
+          node-version: '18' # Use a compatible Node.js version
 
       - name: Install dependencies
         run: |
@@ -29,3 +29,10 @@ jobs:
         run: |
           set -x
           node index.js
+
+      - name: Debug npm environment
+        run: |
+          npm config list
+          npm install --dry-run
+
+          
