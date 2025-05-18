@@ -1,11 +1,14 @@
-const { BskyAgent } = require('@atproto/api');
-const axios = require('axios');
+import { BskyAgent } from '@atproto/api';
+import axios from 'axios';
+import dotenv from 'dotenv';
 
-// 환경변수에서 정보 읽기
+dotenv.config();
+
 const agent = new BskyAgent({ service: 'https://bsky.social' });
-const username = process.env.BSKY_HANDLE;             // ex) your.handle.bsky.social
-const password = process.env.BSKY_APP_PASSWORD;       // Bluesky 앱 비밀번호
-const discordWebhookUrl = process.env.DISCORD_WEBHOOK; // 디스코드 웹훅 URL
+
+const username = process.env.BSKY_HANDLE;
+const password = process.env.BSKY_APP_PASSWORD;
+const discordWebhookUrl = process.env.DISCORD_WEBHOOK;
 
 async function main() {
   await agent.login({ identifier: username, password });
