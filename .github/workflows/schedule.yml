@@ -12,14 +12,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '18' # Use a compatible Node.js version
+          node-version: '20.0.0'
 
       - name: Install dependencies
-        run: |
-          npm ci --verbose
+        run: npm ci
+
+      - name: Upload npm debug log
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: npm-debug-log
+          path: /home/runner/.npm/_logs/
 
       - name: Run bot
         env:
@@ -29,10 +35,3 @@ jobs:
         run: |
           set -x
           node index.js
-
-      - name: Debug npm environment
-        run: |
-          npm config list
-          npm install --dry-run
-
-          
