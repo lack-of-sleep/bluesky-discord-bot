@@ -1,3 +1,8 @@
+if (!username || !password || !discordWebhookUrl) {
+    console.error('One or more required environment variables are missing.');
+    process.exit(1);
+}
+
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
 });
@@ -19,21 +24,26 @@ const discordWebhookUrl = process.env.DISCORD_WEBHOOK;
 async function main() {
     try {
         await agent.login({ identifier: username, password });
+        
         const feed = await agent.getAuthorFeed({ actor: username, limit: 1 });
+        const latestPost = feed.data.feed[0];
 
-        if (!feed.data.feed || feed.data.feed.length === 0) {
-            throw new Error("No posts found in the feed.");
+        if (!latestPost) {
+            console.error('No posts found in the feed.');
+            return;
         }
 
-        const latestPost = feed.data.feed[0];
         const uri = latestPost.post.uri;
         const postId = uri.split('/').pop();
         const link = `https://bsky.app/profile/${username}/post/${postId}`;
 
-        await axios.post(discordWebhookUrl, { content: `${link}` });
+        await axios.post(discordWebhookUrl, {
+            content: `${link}`, 
+        });
+        console.log('Post sent successfully to Discord.');
     } catch (error) {
-        console.error("Error in main():", error.message);
-        process.exit(1);
+        console.error('An error occurred:', error.message);
+        console.error(error.stack);
     }
 }
 
