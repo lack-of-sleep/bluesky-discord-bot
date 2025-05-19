@@ -18,7 +18,10 @@ async function main() {
   const posts = feed.data.feed;
 
   // 🟡 "루트 게시물만 필터링": 답글은 제외
-  const rootPosts = posts.filter(post => !post.post.reply);
+  const rootPosts = posts.filter(post =>
+    post.post && !post.post.reply && !post.reply && !post.reason
+  );
+
 
   // 이미 보낸 URI 목록 불러오기
   let sentUris = [];
