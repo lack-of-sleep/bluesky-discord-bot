@@ -2,7 +2,7 @@ name: Bluesky to Discord
 
 on:
   schedule:
-    - cron: "*/3 * * * *"  # 매 3분마다 실행
+    - cron: "*/5 * * * *"  # 매 5분마다 실행
   workflow_dispatch:
 
 permissions:
