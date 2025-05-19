@@ -13,21 +13,21 @@ const recordPath = './last_sent.json';
 async function main() {
   await agent.login({ identifier: username, password });
 
-  // 최근 게시물 가져오기
+  // 최근 게시물 여러 개 가져오기
   const feed = await agent.getAuthorFeed({ actor: username, limit: 10 });
   const posts = feed.data.feed;
 
-  // 답글 제외하고 루트글만 필터링
+  // 🟡 "루트 게시물만 필터링": 답글은 제외
   const rootPosts = posts.filter(post => !post.post.reply);
 
-  // 기존에 보낸 게시물 URI 목록 불러오기
+  // 이미 보낸 URI 목록 불러오기
   let sentUris = [];
   if (fs.existsSync(recordPath)) {
     const raw = fs.readFileSync(recordPath, 'utf-8');
     sentUris = JSON.parse(raw).sentUris || [];
   }
 
-  // 아직 보내지 않은 게시물만 필터링
+  // 아직 보내지 않은 루트 게시물만
   const newPosts = rootPosts.filter(post => !sentUris.includes(post.post.uri));
 
   if (newPosts.length === 0) {
@@ -35,7 +35,7 @@ async function main() {
     return;
   }
 
-  // 최신순으로 정렬 (가장 오래된 것부터 보내기)
+  // 오래된 글부터 순서대로 전송
   newPosts.reverse();
 
   for (const post of newPosts) {
@@ -47,11 +47,11 @@ async function main() {
       content: `${link}`,
     });
 
-    console.log(`보냄: ${link}`);
+    console.log(`전송됨: ${link}`);
     sentUris.push(uri);
   }
 
-  // 업데이트된 URI 목록 저장
+  // 기록 파일 업데이트
   fs.writeFileSync(recordPath, JSON.stringify({ sentUris }, null, 2));
 }
 
