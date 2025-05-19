@@ -13,16 +13,20 @@ const discordWebhookUrl = process.env.DISCORD_WEBHOOK;
 async function main() {
   await agent.login({ identifier: username, password });
 
-  const feed = await agent.getAuthorFeed({ actor: username, limit: 5 }); // 여러 개 불러오기
+  // 최근 글 여러 개 가져오기
+  const feed = await agent.getAuthorFeed({ actor: username, limit: 10 });
   const posts = feed.data.feed;
 
-  // 퍼블릭 게시글 중 가장 최신 글 찾기
-  const latestRootPost = posts.find(item => !item.post.reply);
+  // "답글이 아닌 글" (루트 게시물)만 필터링
+  const rootPosts = posts.filter(post => !post.reply && !post.post.reply);
 
-  if (!latestRootPost) {
-    console.log('퍼블릭(루트) 게시글이 없습니다.');
+  if (rootPosts.length === 0) {
+    console.log('루트 게시물이 없습니다.');
     return;
   }
+
+  // 가장 최근 루트 게시물 선택
+  const latestRootPost = rootPosts[0];
 
   const uri = latestRootPost.post.uri;
   const postId = uri.split('/').pop();
@@ -32,4 +36,5 @@ async function main() {
     content: `${link}`,
   });
 }
+
 
