@@ -1,6 +1,9 @@
 import { BskyAgent } from '@atproto/api';
 import axios from 'axios';
 import fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const agent = new BskyAgent({ service: 'https://bsky.social' });
 
@@ -13,25 +16,27 @@ const recordPath = './last_sent.json';
 async function main() {
   await agent.login({ identifier: username, password });
 
-  // 최근 게시물 여러 개 가져오기
-  const feed = await agent.getAuthorFeed({ actor: username, limit: 10 });
+  // 최근 게시물 가져오기 (최대 30개)
+  const feed = await agent.getAuthorFeed({ actor: username, limit: 30 });
   const posts = feed.data.feed;
 
-  // 🟡 "루트 게시물만 필터링": 답글은 제외
+  // 루트 게시물만 필터링 (답글 제외)
   const rootPosts = posts.filter(post =>
     post.post && !post.post.reply && !post.reply && !post.reason
   );
 
-
-  // 이미 보낸 URI 목록 불러오기
-  let sentUris = [];
+  // 마지막으로 전송한 게시물의 시간 불러오기
+  let lastSentTime = 0;
   if (fs.existsSync(recordPath)) {
     const raw = fs.readFileSync(recordPath, 'utf-8');
-    sentUris = JSON.parse(raw).sentUris || [];
+    lastSentTime = JSON.parse(raw).lastSentTime || 0;
   }
 
-  // 아직 보내지 않은 루트 게시물만
-  const newPosts = rootPosts.filter(post => !sentUris.includes(post.post.uri));
+  // 새로운 게시물만 필터링
+  const newPosts = rootPosts.filter(post => {
+    const createdAt = new Date(post.post.indexedAt).getTime();
+    return createdAt > lastSentTime;
+  });
 
   if (newPosts.length === 0) {
     console.log('보낼 새 게시물이 없습니다.');
@@ -39,7 +44,7 @@ async function main() {
   }
 
   // 오래된 글부터 순서대로 전송
-  newPosts.reverse();
+  newPosts.sort((a, b) => new Date(a.post.indexedAt) - new Date(b.post.indexedAt));
 
   for (const post of newPosts) {
     const uri = post.post.uri;
@@ -51,11 +56,12 @@ async function main() {
     });
 
     console.log(`전송됨: ${link}`);
-    sentUris.push(uri);
   }
 
-  // 기록 파일 업데이트
-  fs.writeFileSync(recordPath, JSON.stringify({ sentUris }, null, 2));
+  // 마지막 게시물 시간 기록
+  const newest = newPosts[newPosts.length - 1];
+  const newestTime = new Date(newest.post.indexedAt).getTime();
+  fs.writeFileSync(recordPath, JSON.stringify({ lastSentTime: newestTime }, null, 2));
 }
 
 main();
