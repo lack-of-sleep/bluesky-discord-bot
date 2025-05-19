@@ -26,6 +26,7 @@ jobs:
           BSKY_APP_PASSWORD: ${{ secrets.BSKY_APP_PASSWORD }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: node index.js
+        
       - name: Commit updated last_sent.json
         run: |
           git config --global user.name "github-actions[bot]"
